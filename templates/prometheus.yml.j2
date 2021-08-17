@@ -1,0 +1,14 @@
+---
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  
+scrape_configs:
+{% for hostname, host_data in hostvars.items() %}
+{% set scrape_interval = "15s" if host_data["custom_fields"]["telemetry_method"] == "gNMI" else "60s" %}
+  - job_name: {{ hostname }}
+    scrape_interval: {{ scrape_interval }}
+    static_configs:
+      - targets:
+        - "{{ server_hostname | default('localhost') }}:{{ host_data['custom_fields']['telegraf_metrics_port'] }}"
+{% endfor %}

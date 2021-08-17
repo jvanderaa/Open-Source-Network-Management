@@ -1,0 +1,78 @@
+---
+- name: "GENERATE TELEGRAF CONFIGURATIONS"
+  hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+    # - debug:
+    #     msg: "{{ hostvars }}"
+    #   run_once: true
+
+    # - meta: end_play
+
+    # - name: "01 - GET HOSTNAME OF CONTROL NODE FOR USE LATER"
+    #   command: "hostname"
+    #   register: "hostname"
+    #   changed_when: False
+    #   run_once: yes
+
+    # # Set this to whatever is desired for the hostname, by having a name entry this should allow for accessing other docker containers
+    # - name: "05 - SET DEVICE HOSTNAME FOR TEMPLATE RENDERING"
+    #   set_fact:
+    #     server_hostname: "{{ hostname['stdout'] }}"
+
+    - name: "10 - SET ARISTA GNMI PORT"
+      set_fact:
+        gnmi_port: "6030"
+      when:
+        - "custom_fields['telemetry_method'].lower() == 'gnmi'"
+        - "'arista' in manufacturers"
+
+    - name: "20 - SET CISCO GNMI PORT"
+      set_fact:
+        gnmi_port: "50000"
+      when:
+        - "custom_fields['telemetry_method'].lower() == 'gnmi'"
+        - "'cisco' in manufacturers"
+
+    - name: "100 - GENERATE CONFIGURATIONS BASED ON THE TELEMETRY TYPE"
+      template:
+        src: "{{ custom_fields['telemetry_method'].lower() }}-telegraf.j2"
+        dest: "out/{{ inventory_hostname }}.cfg"
+
+    - name: "200 - Build Container Image"
+      docker_image:
+        name: "snmp-telegraf-joshv"
+        tag: "1.0"
+        source: "build"
+        build:
+          path: "./"
+          dockerfile: "./Dockerfile-SNMP"
+          pull: yes
+        state: "present"
+      run_once: yes
+
+    - name: "210 - START TELEGRAF CONTAINERS"
+      docker_container:
+        name: "telegraf-{{ inventory_hostname }}"
+        state: "started"
+        image: "{{ 'snmp-telegraf-joshv:1.0' if custom_fields['telemetry_method'].lower() == 'snmp' else 'telegraf:latest' }}"
+        volumes:
+          - "./out/{{ inventory_hostname }}.cfg:/etc/telegraf/telegraf.conf:ro"
+        published_ports:
+          - "{{ custom_fields['telegraf_metrics_port'] }}:{{ custom_fields['telegraf_metrics_port'] }}"
+        restart_policy: "unless-stopped"
+        env:
+          SNMP_STRING: "{{ lookup('hashi_vault', 'secret=secret/data/snmp_v2:snmp_string token=s.RFlwPhximRK68GO64ukKsPhe url=http://netmgmt2020:8200 validate_certs=false') }}"
+          TELEMETRY_USERNAME: "{{ lookup('hashi_vault', 'secret=secret/data/arista:username token=s.RFlwPhximRK68GO64ukKsPhe url=http://netmgmt2020:8200 validate_certs=false') }}"
+          TELEMETRY_PASSWORD: "{{ lookup('hashi_vault', 'secret=secret/data/arista:password token=s.RFlwPhximRK68GO64ukKsPhe url=http://netmgmt2020:8200 validate_certs=false') }}"
+
+    - name: "300 - GENERATE PROMETHEUS CONFIGURATION FILE"
+      ansible.builtin.template:
+        src: "prometheus.yml.j2"
+        dest: "/opt/prometheus/prometheus/prometheus.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: sudo

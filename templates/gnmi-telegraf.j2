@@ -1,0 +1,27 @@
+{# gnmi-telegraf.j2 #}
+{% include "agent_info.j2" %}
+
+# Device info
+[[inputs.cisco_telemetry_gnmi]]
+    addresses = ["{{ ansible_host }}:{{ gnmi_port | default('6030') }}"]
+    username = "${TELEMETRY_USERNAME}"
+    password = "${TELEMETRY_PASSWORD}"
+
+    ## redial in case of failures after
+    redial = "10s"
+
+# Subscriptions
+    [[inputs.cisco_telemetry_gnmi.subscription]]
+        origin = "openconfig-interfaces"
+        path = "/interfaces/interface"
+        subscription_mode = "sample"
+        sample_interval = "10s"
+
+[[processors.regex]]
+    [[processors.regex.tags]]
+        key = "name"
+        pattern = "^Ethernet1$"
+        replacement = "uplink"
+        result_key = "intf_role"
+
+{% include "output.j2" %}

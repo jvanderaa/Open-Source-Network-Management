@@ -1,0 +1,10 @@
+---
+plugin: "networktocode.nautobot.inventory"
+validate_certs: false
+config_context: false
+# api_endpoint: "https://nautobot18.joshv.me"
+# token: "6fd167451be23bc5104bc07995fa9f4185c33d48"
+api_endpoint: "https://netmgmt2020:8443"
+token: "0123456789abcdef0123456789abcdef01234567"
+# api_endpoint: "https://demo.nautobot.com"
+# token: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
