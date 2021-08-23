@@ -1,0 +1,21 @@
+---
+stages:
+  - test
+
+image: python:3.9
+
+before_script:
+  - python -V
+  - pip install --upgrade pip wheel
+  - pip install black pytest poetry yamllint
+  - poetry config virtualenvs.create false
+  - poetry install --no-interaction --no-ansi
+
+test:
+  script:
+    - black --check .
+    - yamllint .
+  only: 
+    - main
+    - merge_requests
+
