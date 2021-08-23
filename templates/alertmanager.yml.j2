@@ -1,0 +1,22 @@
+---
+global:
+  resolve_timeout: 3m
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+receivers:
+  - email_configs:
+    - auth_identity: "{{ lookup('env', 'ALERTMANAGER_EMAIL_AUTH_IDENTITY') | default(alertmanager_email_auth_identity) }}"
+      auth_password: "{{ lookup('env', 'ALERTMANAGER_EMAIL_AUTH_PASSWORD') | default(alertmanager_email_auth_password) }}"
+      auth_username: "{{ lookup('env', 'ALERTMANAGER_EMAIL_AUTH_USERNAME') | default(alertmanager_email_auth_username) }}"
+      from: "{{ lookup('env', 'ALERTMANAGER_SRC_EMAIL_ADDRESS') | default(alertmanager_src_email_address) }}"
+      smarthost: "{{ lookup('env', 'ALERTMANAGER_EMAIL_HOST') | default(alertmanager_email_host) }}"
+      to: "{{ lookup('env', 'ALERTMANAGER_DST_EMAIL_ADDRESS') | default(alertmanager_dst_email_address) }}"
+    name: email-me
+
+route:
+  group_by:
+    - alertname
+  group_interval: 1m
+  group_wait: 30s
+  receiver: email-me
+  repeat_interval: 8h
