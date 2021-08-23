@@ -16,6 +16,6 @@ test:
   script:
     # - black --check .
     - yamllint .
-  only: 
+  only:
     - main
     - merge_requests

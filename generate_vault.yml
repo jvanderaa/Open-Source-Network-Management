@@ -2,7 +2,7 @@
 - name: "GENERATE TELEGRAF CONFIGURATIONS"
   hosts: all
   connection: local
-  gather_facts: no
+  gather_facts: false
   tasks:
     - name: "10 - CREATE NECESSARY DIRECTORIES"
       ansible.builtin.file:
@@ -40,4 +40,3 @@
       run_once: yes
       become: yes
       become_method: sudo
-
