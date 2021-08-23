@@ -10,17 +10,6 @@
 
     # - meta: end_play
 
-    # - name: "01 - GET HOSTNAME OF CONTROL NODE FOR USE LATER"
-    #   command: "hostname"
-    #   register: "hostname"
-    #   changed_when: False
-    #   run_once: yes
-
-    # # Set this to whatever is desired for the hostname, by having a name entry this should allow for accessing other docker containers
-    # - name: "05 - SET DEVICE HOSTNAME FOR TEMPLATE RENDERING"
-    #   set_fact:
-    #     server_hostname: "{{ hostname['stdout'] }}"
-
     - name: "10 - SET ARISTA GNMI PORT"
       set_fact:
         gnmi_port: "6030"
@@ -70,7 +59,7 @@
     - name: "300 - GENERATE PROMETHEUS CONFIGURATION FILE"
       ansible.builtin.template:
         src: "prometheus.yml.j2"
-        dest: "/opt/prometheus/prometheus/prometheus.yml"
+        dest: "/opt/prometheus/config/prometheus.yml"
         mode: 0644
         owner: "root"
       run_once: yes
