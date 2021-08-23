@@ -1,0 +1,43 @@
+---
+- name: "GENERATE TELEGRAF CONFIGURATIONS"
+  hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: "10 - CREATE NECESSARY DIRECTORIES"
+      ansible.builtin.file:
+        path: "/opt/vault/{{ item }}"
+        state: "directory"
+      loop:
+        - "data"
+        - "volumes"
+
+    - name: "15 - CREATE NECESSARY DIRECTORIES FOR CONFIG"
+      ansible.builtin.file:
+        path: "/opt/vault/data/{{ item }}"
+        state: "directory"
+      loop:
+        - "config"
+        - "file"
+        - "logs"
+
+    - name: "100 - GENERATE VAULT DOCKER-COMPOSE FILE"
+      ansible.builtin.template:
+        src: "vault_compose.yml.j2"
+        dest: "/opt/vault/docker-compose.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: sudo
+
+    - name: "110 - GENERATE VAULT CONFIG FILE"
+      ansible.builtin.template:
+        src: "vault_config.json.j2"
+        dest: "/opt/vault/data/config"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: sudo
+
