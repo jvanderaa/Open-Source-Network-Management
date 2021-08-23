@@ -65,3 +65,34 @@
       run_once: yes
       become: yes
       become_method: sudo
+
+    - name: "305 - GENERATE PROMETHEUS ALERT RULES CONFIGURATION"
+      ansible.builtin.template:
+        src: "prometheus.rules.yml.j2"
+        dest: "/opt/prometheus/config/prometheus.rules.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: sudo
+
+    - name: "310 - ASSERT VARIALBES FOR ALERTMANAGER ARE ALL SET"
+      ansible.builtin.assert:
+        that: "item != ''"
+      loop:
+        - "{{ lookup('env', 'ALERTMANAGER_EMAIL_AUTH_IDENTITY') | default(alertmanager_email_auth_identity) }}"
+        - "{{ lookup('env', 'ALERTMANAGER_EMAIL_AUTH_PASSWORD') | default(alertmanager_email_auth_password) }}"
+        - "{{ lookup('env', 'ALERTMANAGER_EMAIL_AUTH_USERNAME') | default(alertmanager_email_auth_username) }}"
+        - "{{ lookup('env', 'ALERTMANAGER_SRC_EMAIL_ADDRESS') | default(alertmanager_src_email_address) }}"
+        - "{{ lookup('env', 'ALERTMANAGER_EMAIL_HOST') | default(alertmanager_email_host) }}"
+        - "{{ lookup('env', 'ALERTMANAGER_DST_EMAIL_ADDRESS') | default(alertmanager_dst_email_address) }}"
+
+    - name: "310 - GENERATE ALERTMANAGER CONFIGURATION"
+      ansible.builtin.template:
+        src: "alertmanager.yml.j2"
+        dest: "/opt/prometheus/config/alertmanager.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: sudo
