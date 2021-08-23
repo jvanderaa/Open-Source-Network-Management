@@ -14,9 +14,8 @@ before_script:
 
 test:
   script:
-    - black --check .
+    # - black --check .
     - yamllint .
   only: 
     - main
     - merge_requests
-
