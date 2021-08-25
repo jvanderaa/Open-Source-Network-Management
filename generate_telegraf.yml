@@ -64,7 +64,7 @@
         owner: "root"
       run_once: yes
       become: yes
-      become_method: sudo
+      become_method: "sudo"
 
     - name: "305 - GENERATE PROMETHEUS ALERT RULES CONFIGURATION"
       ansible.builtin.template:
@@ -74,7 +74,7 @@
         owner: "root"
       run_once: yes
       become: yes
-      become_method: sudo
+      become_method: "sudo"
 
     - name: "310 - ASSERT VARIALBES FOR ALERTMANAGER ARE ALL SET"
       ansible.builtin.assert:
@@ -95,4 +95,14 @@
         owner: "root"
       run_once: yes
       become: yes
-      become_method: sudo
+      become_method: "sudo"
+
+    - name: "315 - GENERATE MONITORING DOCKER-COMPOSE FILE"
+      ansible.builtin.template:
+        src: "prometheus-compose.yml.j2"
+        dest: "/opt/prometheus/docker-compose.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"

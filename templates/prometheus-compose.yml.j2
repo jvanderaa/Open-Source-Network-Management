@@ -1,0 +1,37 @@
+---
+version: '3'
+services:
+  prometheus:
+    image: "prom/prometheus:v2.29.1"
+    ports:
+      - "9000:9090"
+    volumes:
+      - "./config:/etc/prometheus"
+      - "./data/prometheus:/data"
+    command: "--web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time 365d"
+    network_mode: "host"
+  alertmanager:
+    image: "prom/alertmanager:v0.22.2"
+    ports:
+      - "9093:9093"
+    volumes:
+      - "./config:/etc/alertmanager"
+      - "./data/alertmanager:/data"
+    restart: "unless-stopped"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/data'
+  grafana:
+    image: "grafana/grafana:8.1.2"
+    ports:
+      - "3000:3000"
+    volumes:
+      - "grafana-storage:/var/lib/grafana"
+      - "./grafana/provisioning/:/etc/grafana/provisioning/"
+    depends_on:
+      - "prometheus"
+    restart: "unless-stopped"
+    network_mode: "host"
+    
+volumes:
+  grafana-storage:
