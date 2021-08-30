@@ -50,6 +50,21 @@ http {
       }
     }
     server {
+      listen 443;
+      server_name alertmanager.josh-v.com;
+
+      ssl_certificate /etc/ssl/certs/nautobot.crt;
+      ssl_certificate_key /etc/ssl/private/nautobot.key;
+
+      location / {
+        proxy_pass http://alertmanager:9093;
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+      }
+    }
+    server {
       listen 443 ssl http2;
       server_name nautobot.josh-v.com;
 

@@ -17,7 +17,7 @@ scrape_configs:
     scrape_interval: "15s"
     static_configs:
       - targets:
-        - "localhost:9100"
+        - "nodeexporter:9100"
 {% for hostname, host_data in hostvars.items() %}
 {% set scrape_interval = "15s" if host_data["custom_fields"]["telemetry_method"] == "gNMI" else "60s" %}
   - job_name: "{{ hostname }}"
