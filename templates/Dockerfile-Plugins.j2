@@ -1,0 +1,5 @@
+FROM networktocode/nautobot:1.1.2-py3.9
+
+RUN pip install nautobot-device-onboarding
+
+COPY nautobot_config.py /opt/nautobot/nautobot_config.py

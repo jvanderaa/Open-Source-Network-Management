@@ -51,6 +51,8 @@
         published_ports:
           - "{{ custom_fields['telegraf_metrics_port'] }}:{{ custom_fields['telegraf_metrics_port'] }}"
         restart_policy: "unless-stopped"
+        networks:
+          - name: netmgmt_main
         env:
           SNMP_STRING: "{{ lookup('hashi_vault', 'secret=secret/data/snmp_v2:snmp_string token=s.RFlwPhximRK68GO64ukKsPhe url=http://netmgmt2020:8200 validate_certs=false') }}"
           TELEMETRY_USERNAME: "{{ lookup('hashi_vault', 'secret=secret/data/arista:username token=s.RFlwPhximRK68GO64ukKsPhe url=http://netmgmt2020:8200 validate_certs=false') }}"
@@ -59,7 +61,7 @@
     - name: "300 - GENERATE PROMETHEUS CONFIGURATION FILE"
       ansible.builtin.template:
         src: "prometheus.yml.j2"
-        dest: "/opt/prometheus/config/prometheus.yml"
+        dest: "/opt/netmgmt/config/prometheus.yml"
         mode: 0644
         owner: "root"
       run_once: yes
