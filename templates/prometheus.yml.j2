@@ -1,0 +1,28 @@
+---
+global:
+  scrape_interval: "15s"
+  scrape_timeout: "10s"
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - localhost:9093
+
+rule_files:
+  - "prometheus.rules.yml"
+  
+scrape_configs:
+  - job_name: "localhost"
+    scrape_interval: "15s"
+    static_configs:
+      - targets:
+        - "localhost:9100"
+{% for hostname, host_data in hostvars.items() %}
+{% set scrape_interval = "15s" if host_data["custom_fields"]["telemetry_method"] == "gNMI" else "60s" %}
+  - job_name: "{{ hostname }}"
+    scrape_interval: "{{ scrape_interval }}"
+    static_configs:
+      - targets:
+        - "telegraf-{{ hostname }}:{{ host_data['custom_fields']['telegraf_metrics_port'] }}"
+{% endfor %}

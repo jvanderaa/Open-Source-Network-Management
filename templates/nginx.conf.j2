@@ -1,0 +1,74 @@
+events {
+  worker_connections 1024;
+}
+
+http {
+    server {
+      listen 443;
+      server_name grafana.josh-v.com;
+
+      ssl_certificate /etc/ssl/certs/nautobot.crt;
+      ssl_certificate_key /etc/ssl/private/nautobot.key;
+
+      location / {
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+
+        proxy_pass http://grafana:3000;
+      }
+    }
+    server {
+      listen 443;
+      server_name vault.josh-v.com;
+
+      ssl_certificate /etc/ssl/certs/nautobot.crt;
+      ssl_certificate_key /etc/ssl/private/nautobot.key;
+
+      location / {
+        proxy_pass http://vault:8200;
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+      }
+    }
+    server {
+      listen 443;
+      server_name prometheus.josh-v.com;
+
+      ssl_certificate /etc/ssl/certs/nautobot.crt;
+      ssl_certificate_key /etc/ssl/private/nautobot.key;
+
+      location / {
+        proxy_pass http://prometheus:9090;
+        proxy_set_header        Host $host:$server_port;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+      }
+    }
+    server {
+      listen 443 ssl http2;
+      server_name nautobot.josh-v.com;
+
+      ssl_certificate /etc/ssl/certs/nautobot.crt;
+      ssl_certificate_key /etc/ssl/private/nautobot.key;
+      
+      location / {
+        proxy_pass https://nautobot:8443;
+        proxy_set_header X-Forwarded-Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header P3P 'CP="ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV"';
+      }
+
+    }
+    server {
+      listen 80 default_server;
+      server_name _;
+
+      return 301 https://$host$request_uri;
+    }
+}

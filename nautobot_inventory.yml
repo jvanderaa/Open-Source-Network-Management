@@ -1,0 +1,6 @@
+---
+plugin: "networktocode.nautobot.inventory"
+validate_certs: false
+config_context: false
+api_endpoint: "https://netmgmt2020:8443"
+token: "0123456789abcdef0123456789abcdef01234567" # Change to your API Key

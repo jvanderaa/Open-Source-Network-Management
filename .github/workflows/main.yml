@@ -1,0 +1,22 @@
+---
+name: "CI"
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  lint:
+    runs-on: "ubuntu-20.04"
+    steps:
+      - name: "Check out repository code"
+        uses: "actions/checkout@v2"
+      - name: "Set up Python"
+        uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - name: "Install Python Packages for Linting"
+        run: "pip install --upgrade pip wheel yamllint"
+      - name: "Linting: YAMLLINT"
+        run: "yamllint ."

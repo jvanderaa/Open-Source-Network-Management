@@ -1,0 +1,8 @@
+---
+groups:
+- name: ./rules.conf
+  rules:
+# service availability alert
+  - alert: PollingDown
+    expr: up == 0 
+    for: 30s

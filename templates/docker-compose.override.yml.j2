@@ -1,0 +1,32 @@
+---
+version: "3.7"
+services:
+  nautobot:
+    image: "joshv/nautobot-plugins:1.1.2-py3.9"
+    build:
+      context: .
+      dockerfile: Dockerfile-Plugins
+    env_file:
+      - ".env"
+    ports:
+      - "8443:8443"
+      - "8080:8080"
+    restart: "unless-stopped"
+  nautobot-worker:
+    image: "joshv/nautobot-plugins:1.1.2-py3.9"
+    build:
+      context: .
+      dockerfile: Dockerfile-Plugins
+    env_file:
+      - ".env"
+    restart: "unless-stopped"
+  celery_worker:
+    image: "joshv/nautobot-plugins:1.1.2-py3.9"
+    build:
+      context: "."
+      dockerfile: "Dockerfile-Plugins"
+      args:
+        PYTHON_VER: "${PYTHON_VER:-3.9}"
+    env_file:
+      - ".env"
+    restart: "unless-stopped"

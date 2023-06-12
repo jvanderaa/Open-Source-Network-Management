@@ -1,0 +1,80 @@
+---
+- name: "GENERATE DOCKER COMPOSE ENVIRONMENT"
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    use_override: yes
+  tasks:
+    - name: "100 - CREATE DIRECTORY FOR DOCKER COMPOSE MGMT ALL"
+      file:
+        path: "/opt/netmgmt"
+        state: "directory"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"
+
+    - name: "110 - GENERATE DOCKER-COMPOSE"
+      ansible.builtin.template:
+        src: "network_management-compose.yml.j2"
+        dest: "/opt/netmgmt/docker-compose.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"
+
+    - name: "115 - GENERATE DOCKER-COMPOSE OVERRIDE FOR PLUGINS"
+      ansible.builtin.template:
+        src: "docker-compose.override.yml.j2"
+        dest: "/opt/netmgmt/docker-compose.override.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"
+      when: "use_override"
+
+    - name: "120 - GENERATE PLUGINS DOCKERFILE"
+      ansible.builtin.template:
+        src: "Dockerfile-Plugins.j2"
+        dest: "/opt/netmgmt/Dockerfile-Plugins"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"
+      when: "use_override"
+
+    - name: "125 - GENERATE NAUTOBOT CONFIGURATION FILE"
+      ansible.builtin.template:
+        src: "nautobot_config.py.j2"
+        dest: "/opt/netmgmt/nautobot_config.py"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"
+      when: "use_override"
+
+    - name: "130 - GENERATE NGINX CONFIGURATION"
+      ansible.builtin.template:
+        src: "nginx.conf.j2"
+        dest: "/opt/netmgmt/nginx.conf"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"
+
+    - name: "135 - GENERATE PROMETHEUS CONFIGURATION"
+      ansible.builtin.template:
+        src: "prometheus.yml.j2"
+        dest: "/opt/netmgmt/config/prometheus.yml"
+        mode: 0644
+        owner: "root"
+      run_once: yes
+      become: yes
+      become_method: "sudo"

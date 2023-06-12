@@ -1,0 +1,16 @@
+---
+version: '3.6'
+services:
+  vault:
+    image: vault
+    container_name: vault
+    ports:
+      - "8200:8200"
+    restart: always
+    volumes:
+      - /opt/vault/data/logs:/vault/logs
+      - /opt/vault/data/file:/vault/file
+      - /opt/vault/data/config:/vault/config
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -config=/vault/config/vault.json
